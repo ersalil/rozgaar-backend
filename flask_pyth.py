@@ -31,6 +31,7 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+#uplaod profile image of user
 @app.route("/user/upload-image", methods=["GET", "POST"])
 def upload_image():
     if request.method == "POST":
@@ -49,6 +50,7 @@ def upload_image():
             return "success"
     return "none"
 
+#uplaod profile image of recruiter
 @app.route("/rec/upload-image", methods=["GET", "POST"])
 def upload_image2():
     if request.method == "POST":
@@ -65,6 +67,7 @@ def upload_image2():
             return "success"
     return "none"
 
+#get profile image of user
 @app.route('/user/get_image', methods=["GET", "POST"])
 def download_file():
     data = request.get_json()
@@ -78,6 +81,7 @@ def download_file():
     print(image)
     return send_from_directory("/home/ubuntu/myflask/flask_python/static/profile/user", image, as_attachment=True)
 
+#get profile image of user
 @app.route('/rec/get_image', methods=["GET", "POST"])
 def download_file2():
     data = request.get_json()
@@ -91,6 +95,7 @@ def download_file2():
     print(image)
     return send_from_directory("/home/ubuntu/myflask/flask_python/static/profile/rec", image, as_attachment=True)
 
+#set user rating, rated by recruiter
 @app.route('/user/rate', methods=['POST'])
 def user_rate():
     data = request.get_json()
@@ -115,6 +120,7 @@ def user_rate():
     cur.close()
     return jsonify({'result': "success", 'status': 200})
 
+#set recruiter rating, rated by user
 @app.route('/recruiter/rate', methods=['POST'])
 def recruiter_rate():
     data = request.get_json()
@@ -149,6 +155,7 @@ def users():
         js = json.dumps(userDetails)
         return jsonify(js)
 
+#for drop down, return all types of jobs, example: painter, driver, sweeper, etc
 @app.route('/jobs_type', methods=['GET','POST'])
 def jobs_type():
     cur = mysql.connection.cursor()
@@ -156,8 +163,6 @@ def jobs_type():
     job_Detail = list(cur.fetchall())
     res = []
     [res.append(x) for x in job_Detail if x not in res]
-    # for y in res:
-    #     dic = {"job_type": y}
     return json.dumps(res)
 
 #test mode
@@ -173,7 +178,7 @@ def user():
     js = json.dumps(userDetail)
     return jsonify(js)
 
-# for user dashboard, fetch all jobs according to job type
+#for user dashboard, fetch all jobs according to job type
 @app.route('/job/type', methods=['GET', 'POST'])
 def get_joblist():
     global name_global_user
@@ -258,6 +263,7 @@ def get_job_rec():
 #     print(ls)
 #     return json.dumps(ls)
 
+#when user apply into any job, or simply when press call button
 @app.route('/user/apply', methods=['POST'])
 def apply_oncall():
     data = request.get_json()
@@ -271,6 +277,7 @@ def apply_oncall():
     print(jsonify({'result': "success", 'status': 200}))
     return jsonify({'result': "success", 'status': 200})
 
+#for rec notification page, gets all user that applied jobs, posted by him
 @app.route('/user/apply/get', methods=['POST'])
 def get_notfication():
     global jobid
@@ -398,6 +405,7 @@ def add_job():
     cur.close()
     return jsonify({'result': "success", 'status': 200})
 
+#rec end, to accept the user for the job
 @app.route('/clicked/yes', methods=['POST'])
 def yes():
     data = request.get_json()
@@ -408,6 +416,7 @@ def yes():
     cur.close()
     return jsonify({'result': "success", 'status': 200})
 
+#rec end, to reject the user for the job
 @app.route('/clicked/no', methods=['POST'])
 def no():
     data = request.get_json()
@@ -418,6 +427,7 @@ def no():
     cur.close()
     return jsonify({'result': "success", 'status': 200})
 
+#for applied jobs in user end, where he get the update of (not seen, accepted, rejected)
 @app.route('/applied/user/jobs', methods=['POST'])
 def get_applied_job_for_user():
     data = request.get_json()
@@ -459,6 +469,7 @@ def get_applied_job_for_user():
         print(ls2)
     return json.dumps(ls2)
 
+#rec hstory, rec end
 @app.route('/rec/history', methods=['POST'])
 def rec_history_by_yes():
     data = request.get_json()
@@ -500,6 +511,7 @@ def rec_history_by_yes():
     print(ls2)
     return json.dumps(ls2)
 
+#to del any job, i mean - set del value to 1
 @app.route('/del/job', methods=['POST'])
 def del_job():
     data = request.get_json()
@@ -510,6 +522,7 @@ def del_job():
     cur.close()
     return jsonify({'result': "success", 'status': 200})
 
+#user history, seen from both end
 @app.route('/user/history', methods=['POST'])
 def user_history_by_yes():
     data = request.get_json()
@@ -602,6 +615,10 @@ def user_history_by_yes():
 #     mysql.connection.commit()
 #     cur2.close()
 #     return "deleted"
+
+#test mode
+#to reset the whole database
+##*** warning don't press it ***##
 @app.route('/del/all', methods=['GET', 'POST'])
 def del_all():
     cur = mysql.connection.cursor()
