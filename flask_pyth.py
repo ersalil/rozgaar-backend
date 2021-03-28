@@ -187,7 +187,7 @@ def get_joblist():
     type = data['type']
     cur = mysql.connection.cursor()
     if type == "all":
-        cur.execute("SELECT * FROM jobs")
+        cur.execute("SELECT * FROM jobs WHERE del = 0")
     else:
         cur.execute("SELECT * FROM jobs WHERE (job_type = %s and del = 0)", [type])
     job_list = cur.fetchall()
