@@ -331,6 +331,9 @@ def add_user():
     name_global_user = data['name']
     print(name_global_user)
     phone = data['phone']
+    status = int(data['status'])
+    if status == 1:
+        s_type = data['s_type']
 
     cur2 = mysql.connection.cursor()
     cur2.execute("SELECT phn_no FROM users WHERE phn_no = %s", [phone])
@@ -344,13 +347,13 @@ def add_user():
                 return jsonify({'status': 200, 'result': "success", 'role': "user", 'type': "login"})
             else:
                 cur = mysql.connection.cursor()
-                cur.execute("INSERT INTO users (name, phn_no) VALUES (%s,%s)", (name, phone))
+                cur.execute("INSERT INTO users (name, phn_no, 2, s_type) VALUES (%s,%s,%s,%s)", (name, phone, status, s_type))
                 mysql.connection.commit()
                 cur.close()
                 return jsonify({'status': 200, 'result': "success", 'role': "user", 'type': "sign up"})
     else:
         cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO users (name, phn_no) VALUES (%s,%s)", (name, phone))
+        cur.execute("INSERT INTO users (name, phn_no, 2, s_type) VALUES (%s,%s,%s,%s)", (name, phone, status, s_type))
         mysql.connection.commit()
         cur.close()
         return jsonify({'status': 200, 'result': "success", 'role': "user", 'type': "sign up"})
@@ -399,8 +402,11 @@ def add_job():
     job_type = data['type']
     job_dis = data['description']
     alt_no = data['alt_no']
+    status = int(data['status'])
+    if status == 1:
+        s_type = data['s_type']
     cur = mysql.connection.cursor()
-    cur.execute("INSERT INTO jobs (job_type, job_desc, rec_phn_no, address, rec_alternate_no) VALUES (%s,%s,%s,%s,%s)", (job_type, job_dis, phone, address, alt_no))
+    cur.execute("INSERT INTO jobs (job_type, job_desc, rec_phn_no, address, rec_alternate_no, status, s_type) VALUES (%s,%s,%s,%s,%s,%s,%s)", (job_type, job_dis, phone, address, alt_no, status, s_type))
     mysql.connection.commit()
     cur.close()
     return jsonify({'result': "success", 'status': 200})
