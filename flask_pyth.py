@@ -185,11 +185,16 @@ def get_joblist():
     print(name_global_user)
     data = request.get_json()
     type = data['type']
+    status = str(data['status'])
+    s_type = data['s_type']
+    print(status)
     cur = mysql.connection.cursor()
+    if status == "false":
+        s_type = ""
     if type == "all":
-        cur.execute("SELECT * FROM jobs WHERE del = 0")
+        cur.execute("SELECT * FROM jobs WHERE (del = 0 and status = %s and s_type = %s)", (status, s_type))
     else:
-        cur.execute("SELECT * FROM jobs WHERE (job_type = %s and del = 0)", [type])
+        cur.execute("SELECT * FROM jobs WHERE (job_type = %s and del = 0 and status = %s, s_type = %s)", (type, status, s_type))
     job_list = cur.fetchall()
     print("original", job_list)
     js = list(job_list)
@@ -403,6 +408,8 @@ def add_job():
     alt_no = data['alt_no']
     status = data['status']
     s_type = data['s_type']
+    if status == "false":
+        s_type = ""
     cur = mysql.connection.cursor()
     cur.execute("INSERT INTO jobs (job_type, job_desc, rec_phn_no, address, rec_alternate_no, status, s_type) VALUES (%s,%s,%s,%s,%s,%s,%s)", (job_type, job_dis, phone, address, alt_no, status, s_type))
     mysql.connection.commit()
