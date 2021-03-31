@@ -457,7 +457,9 @@ def add_user():
     s_type = data['s_type']
     if status == 'false':
         s_type = ""
-    if s_type == "hello":
+    if s_type == "All":
+        s_type = "none"
+    if s_type == "Others":
         s_type = "none"
     cur2 = mysql.connection.cursor()
     cur2.execute("SELECT phn_no FROM users WHERE phn_no = %s", [phone])
