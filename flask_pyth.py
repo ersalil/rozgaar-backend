@@ -155,15 +155,17 @@ def user_rate():
     print(rate)
     for x in rate:
         r = x[2]
-        print(r)
+        print(r, type(r))
 
     try:
-        if r == "0":
+        r = int(r)
+        if r == 0:
             rating = float(user_star)
         else:
             rating = (float(r) + float(user_star)) / 2
     except:
         rating = float(user_star)
+    print(r)
     rating = int(rating)
     cur = mysql.connection.cursor()
     cur.execute("UPDATE `users` SET `1`= %s WHERE `users`.`phn_no` = %s;", [rating, user_id])
@@ -230,14 +232,16 @@ def recruiter_rate():
     print(rate)
     for x in rate:
         r = x[2]
-        print(r)
+        print(r, type(r))
     try:
-        if r == "0":
+        r = int(r)
+        if r == 0:
             rating = float(user_star)
         else:
             rating = (float(r) + float(user_star)) / 2
     except:
         rating = float(user_star)
+    print(r)
     rating = int(rating)
     cur = mysql.connection.cursor()
     cur.execute("UPDATE `recruiter` SET `rate`= %s WHERE `recruiter`.`phn_no` = %s;", [rating, user_id])
