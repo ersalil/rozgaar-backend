@@ -341,6 +341,8 @@ def get_job_rec():
         id = str(x[5])
         s_status = str(x[7])
         s_ret_type = str(x[8])
+        if alter_no == "0":
+            alter_no = ""
         dic = {'name': name_global_rec, 'type': job_type, 'description': job_desc, 'phone': rec_phn, 'address': job_address, 'alternate': alter_no, 'id': id, 'status': s_status, 's_type': s_ret_type}
         dic = dict(dic)
         ls.append(dic)
