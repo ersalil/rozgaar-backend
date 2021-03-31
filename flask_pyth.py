@@ -635,13 +635,19 @@ def rec_history_by_yes():
         cur3 = mysql.connection.cursor()
         cur3.execute("SELECT job_type FROM jobs WHERE Id = %s", [z])
         job_data = cur3.fetchall()
+        cur4 = mysql.connection.cursor()
+        cur4.execute("SELECT * FROM recruiter WHERE phn_no = %s", [rec_id])
+        rec_list = cur4.fetchall()
         js = list(user_list)
         js2 = list(job_data)
-        for x3, x4 in zip(js, js2):
+        js3 = list(rec_list)
+        for x3, x4, x5 in zip(js, js2, js3):
             name = str(x3[0])
             user_phn = str(x3[1])
             type_job = str(x4[0])
-            dic = {'name': name, 'phone': user_phn, 'job_type': type_job, 'id': z3}
+            rec_name = str(x5[0])
+            rec_phn = str(x5[1])
+            dic = {'name': name, 'phone': user_phn, 'job_type': type_job, 'id': z3, 'rec_name': rec_name, 'rec_phn': rec_phn}
             dic = dict(dic)
             ls2.append(dic)
     print(ls2)
@@ -666,7 +672,7 @@ def user_history_by_yes():
     cur = mysql.connection.cursor()
     cur.execute("SELECT rec_id, job_id, Id FROM applied WHERE (user_id = %s and status = 1 and answer = 1)", [user_id2])
     user_id = cur.fetchall()
-    print(user_id)
+    print(user_id2)
     user_id = list(user_id)
     ls = []
     ls_b = []
