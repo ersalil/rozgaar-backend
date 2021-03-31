@@ -535,7 +535,9 @@ def add_job():
     if status == False:
         status2 = "false"
         s_type = ""
-    if s_type == "hello":
+    if s_type == "All":
+        s_type = "none"
+    if s_type == "Others":
         s_type = "none"
     cur = mysql.connection.cursor()
     cur.execute("INSERT INTO jobs (job_type, job_desc, rec_phn_no, address, rec_alternate_no, status, s_type) VALUES (%s,%s,%s,%s,%s,%s,%s)", (job_type, job_dis, phone, address, alt_no, status2, s_type))
