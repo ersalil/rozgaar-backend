@@ -602,6 +602,8 @@ def get_applied_job_for_user():
             alter_no = str(x[3])
             job_address = str(x[4])
             id2 = str(x[5])
+            if alter_no == "0":
+                alter_no = ""
             dic = {'type': job_type, 'description': job_desc, 'phone': rec_phn, 'address': job_address,
                    'alternate': alter_no, 'id': id2, 'status': y2, 'answer': y3}
             dic = dict(dic)
