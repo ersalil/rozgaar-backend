@@ -95,14 +95,62 @@ def download_file2():
     print(image)
     return send_from_directory("/home/ubuntu/myflask/flask_python/static/profile/rec", image, as_attachment=True)
 
+#get data for recruiter
+@app.route('/user/rate/get_data', methods=['POST'])
+def get_user_data():
+    global jobid
+    data = request.get_json()
+    rec_id = data['rec_id']
+    cur = mysql.connection.cursor()
+    cur.execute('SELECT user_id, job_id, Id FROM applied WHERE (rec_id = %s and status = 1 and answer = 1 and user_star = 0)', [rec_id])
+    user_id = cur.fetchall()
+    user_id = list(user_id)
+    user_id = reversed(user_id)
+    ls = []
+    ls_b = []
+    ls_id = []
+    for x in user_id:
+        id = str(x[0])
+        jobid = str(x[1])
+        idx = str(x[2])
+        ls.append(id)
+        ls_b.append(jobid)
+        ls_id.append(idx)
+    print(ls)
+    print(ls_b)
+    ls2 = []
+    for y, z, z3 in zip(ls, ls_b, ls_id):
+        print(y, z, z3)
+        cur2 = mysql.connection.cursor()
+        cur2.execute("SELECT * FROM users WHERE phn_no = %s", [y])
+        user_list = cur2.fetchall()
+        cur3 = mysql.connection.cursor()
+        cur3.execute("SELECT job_type FROM jobs WHERE Id = %s", [z])
+        job_data = cur3.fetchall()
+        js = list(user_list)
+        js2 = list(job_data)
+        for x3, x4 in zip(js, js2):
+            name = str(x3[0])
+            user_phn = str(x3[1])
+            type_job = str(x4[0])
+            dic = {'name': name, 'phone': user_phn, 'job_type': type_job, 'apply_id': z3}
+            dic = dict(dic)
+            ls2.append(dic)
+    print(ls2)
+    return json.dumps(ls2)
+
 #set user rating, rated by recruiter
 @app.route('/user/rate', methods=['POST'])
 def user_rate():
     data = request.get_json()
     user_id = data['user_id']
     user_star = data['user_star']
+    apply_id = data['apply_id']
     cur2 = mysql.connection.cursor()
     cur2.execute("SELECT * FROM users WHERE phn_no = %s", [user_id])
+    cur3 = mysql.connection.cursor()
+    cur3.execute("UPDATE applied SET user_star = %s WHERE Id = %s", [user_star, apply_id])
+    mysql.connection.commit()
     rate = cur2.fetchall()
     print(rate)
     for x in rate:
@@ -113,21 +161,68 @@ def user_rate():
         rating = (float(r) + float(user_star)) / 2
     except:
         rating = float(user_star)
-    rating = float(rating)
+    rating = int(rating)
     cur = mysql.connection.cursor()
     cur.execute("UPDATE `users` SET `1`= %s WHERE `users`.`phn_no` = %s;", [rating, user_id])
     mysql.connection.commit()
     cur.close()
     return jsonify({'result': "success", 'status': 200})
 
+#get star data of recruiter
+@app.route('/rec/rate/get_data', methods=['POST'])
+def get_rec_data():
+    global jobid
+    data = request.get_json()
+    user_id = data['user_id']
+    cur = mysql.connection.cursor()
+    cur.execute('SELECT rec_id, job_id, Id FROM applied WHERE (user_id = %s and status = 1 and answer = 1 and rec_star = 0)', [user_id])
+    user_id = cur.fetchall()
+    user_id = list(user_id)
+    user_id = reversed(user_id)
+    ls = []
+    ls_b = []
+    ls_id = []
+    for x in user_id:
+        id = str(x[0])
+        jobid = str(x[1])
+        idx = str(x[2])
+        ls.append(id)
+        ls_b.append(jobid)
+        ls_id.append(idx)
+    print(ls)
+    print(ls_b)
+    ls2 = []
+    for y, z, z3 in zip(ls, ls_b, ls_id):
+        print(y, z, z3)
+        cur2 = mysql.connection.cursor()
+        cur2.execute("SELECT * FROM recruiter WHERE phn_no = %s", [y])
+        user_list = cur2.fetchall()
+        cur3 = mysql.connection.cursor()
+        cur3.execute("SELECT job_type FROM jobs WHERE Id = %s", [z])
+        job_data = cur3.fetchall()
+        js = list(user_list)
+        js2 = list(job_data)
+        for x3, x4 in zip(js, js2):
+            name = str(x3[0])
+            rec_phn = str(x3[1])
+            type_job = str(x4[0])
+            dic = {'name': name, 'phone': rec_phn, 'job_type': type_job, 'apply_id': z3}
+            dic = dict(dic)
+            ls2.append(dic)
+    print(ls2)
+    return json.dumps(ls2)
+
 #set recruiter rating, rated by user
 @app.route('/recruiter/rate', methods=['POST'])
 def recruiter_rate():
     data = request.get_json()
-    user_id = data['user_id']
+    user_id = data['rec_id']
     user_star = data['user_star']
+    apply_id = data['apply_id']
     cur2 = mysql.connection.cursor()
     cur2.execute("SELECT * FROM recruiter WHERE phn_no = %s", [user_id])
+    cur3 = mysql.connection.cursor()
+    cur3.execute("UPDATE applied SET rec_star = %s WHERE Id = %s", [user_star, apply_id])
     rate = cur2.fetchall()
     print(rate)
     for x in rate:
@@ -137,7 +232,7 @@ def recruiter_rate():
         rating = (float(r) + float(user_star))/2
     except:
         rating = float(user_star)
-    rating = float(rating)
+    rating = int(rating)
     cur = mysql.connection.cursor()
     cur.execute("UPDATE `recruiter` SET `rate`= %s WHERE `recruiter`.`phn_no` = %s;", [rating, user_id])
     mysql.connection.commit()
@@ -184,17 +279,21 @@ def get_joblist():
     global name_global_user
     print(name_global_user)
     data = request.get_json()
-    type = data['type']
+    type2 = data['type']
     status = str(data['status'])
     s_type = data['s_type']
     print(status)
     cur = mysql.connection.cursor()
     if status == "false":
         s_type = ""
-    if type == "all":
+    if type2 == "all" and s_type == "none":
+        cur.execute("SELECT * FROM jobs WHERE (del = 0 and status = %s)", (status))
+    elif type2 == "all" and status == "true":
         cur.execute("SELECT * FROM jobs WHERE (del = 0 and status = %s and s_type = %s)", (status, s_type))
+    elif type2 == "all":
+        cur.execute("SELECT * FROM jobs WHERE (del = 0)")
     else:
-        cur.execute("SELECT * FROM jobs WHERE (job_type = %s and del = 0 and status = %s, s_type = %s)", (type, status, s_type))
+        cur.execute("SELECT * FROM jobs WHERE (job_type = %s and del = 0 and status = %s, s_type = %s)", (type2, status, s_type))
     job_list = cur.fetchall()
     print("original", job_list)
     js = list(job_list)
@@ -208,7 +307,11 @@ def get_joblist():
         alter_no = str(x[3])
         job_address = str(x[4])
         id = str(x[5])
-        dic = {'name': name_global_user, 'type': job_type, 'description': job_desc, 'phone': rec_phn, 'address': job_address, 'alternate': alter_no, 'id': id}
+        s_status = str(x[7])
+        s_ret_type = str(x[8])
+        if alter_no == "0":
+            alter_no = ""
+        dic = {'name': name_global_user, 'type': job_type, 'description': job_desc, 'phone': rec_phn, 'address': job_address, 'alternate': alter_no, 'id': id, 's_status': s_status, 's_ret_type': s_ret_type}
         dic = dict(dic)
         ls.append(dic)
     print(ls)
@@ -236,7 +339,9 @@ def get_job_rec():
         alter_no = str(x[3])
         job_address = str(x[4])
         id = str(x[5])
-        dic = {'name': name_global_rec, 'type': job_type, 'description': job_desc, 'phone': rec_phn, 'address': job_address, 'alternate': alter_no, 'id': id}
+        s_status = str(x[7])
+        s_ret_type = str(x[8])
+        dic = {'name': name_global_rec, 'type': job_type, 'description': job_desc, 'phone': rec_phn, 'address': job_address, 'alternate': alter_no, 'id': id, 'status': s_status, 's_type': s_ret_type}
         dic = dict(dic)
         ls.append(dic)
     print(ls)
@@ -336,9 +441,12 @@ def add_user():
     name_global_user = data['name']
     print(name_global_user)
     phone = data['phone']
-    status = data['status']
+    status = str(data['status'])
     s_type = data['s_type']
-
+    if status == 'false':
+        s_type = ""
+    if s_type == "hello":
+        s_type = "none"
     cur2 = mysql.connection.cursor()
     cur2.execute("SELECT phn_no FROM users WHERE phn_no = %s", [phone])
     phn_chk = cur2.fetchall()
@@ -408,10 +516,15 @@ def add_job():
     alt_no = data['alt_no']
     status = data['status']
     s_type = data['s_type']
-    if status == "false":
+    if status == True:
+        status2 = "true"
+    if status == False:
+        status2 = "false"
         s_type = ""
+    if s_type == "hello":
+        s_type = "none"
     cur = mysql.connection.cursor()
-    cur.execute("INSERT INTO jobs (job_type, job_desc, rec_phn_no, address, rec_alternate_no, status, s_type) VALUES (%s,%s,%s,%s,%s,%s,%s)", (job_type, job_dis, phone, address, alt_no, status, s_type))
+    cur.execute("INSERT INTO jobs (job_type, job_desc, rec_phn_no, address, rec_alternate_no, status, s_type) VALUES (%s,%s,%s,%s,%s,%s,%s)", (job_type, job_dis, phone, address, alt_no, status2, s_type))
     mysql.connection.commit()
     cur.close()
     return jsonify({'result': "success", 'status': 200})
