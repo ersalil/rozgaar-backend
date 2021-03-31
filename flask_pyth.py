@@ -664,7 +664,7 @@ def user_history_by_yes():
     data = request.get_json()
     user_id = data['user_id']
     cur = mysql.connection.cursor()
-    cur.execute("SELECT user_id, job_id, Id FROM applied WHERE (user_id = %s and status = 1 and answer = 1)", [user_id])
+    cur.execute("SELECT rec_id, job_id, Id FROM applied WHERE (user_id = %s and status = 1 and answer = 1)", [user_id])
     user_id = cur.fetchall()
     print(user_id)
     user_id = list(user_id)
@@ -684,18 +684,18 @@ def user_history_by_yes():
     for y, z, z3 in zip(ls, ls_b, ls_id):
         print(y, z, z3)
         cur2 = mysql.connection.cursor()
-        cur2.execute("SELECT * FROM users WHERE phn_no = %s", [y])
-        user_list = cur2.fetchall()
+        cur2.execute("SELECT * FROM recruiter WHERE phn_no = %s", [y])
+        rec_list = cur2.fetchall()
         cur3 = mysql.connection.cursor()
         cur3.execute("SELECT job_type FROM jobs WHERE Id = %s", [z])
         job_data = cur3.fetchall()
-        js = list(user_list)
+        js = list(rec_list)
         js2 = list(job_data)
         for x3, x4 in zip(js, js2):
             name = str(x3[0])
-            user_phn = str(x3[1])
+            rec_phn = str(x3[1])
             type_job = str(x4[0])
-            dic = {'name': name, 'phone': user_phn, 'job_type': type_job, 'id': z3}
+            dic = {'name': name, 'phone': rec_phn, 'job_type': type_job, 'id': z3}
             dic = dict(dic)
             ls2.append(dic)
     print(ls2)
