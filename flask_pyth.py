@@ -158,7 +158,10 @@ def user_rate():
         print(r)
 
     try:
-        rating = (float(r) + float(user_star)) / 2
+        if r == "0":
+            rating = float(user_star)
+        else:
+            rating = (float(r) + float(user_star)) / 2
     except:
         rating = float(user_star)
     rating = int(rating)
@@ -229,7 +232,10 @@ def recruiter_rate():
         r = x[2]
         print(r)
     try:
-        rating = (float(r) + float(user_star))/2
+        if r == "0":
+            rating = float(user_star)
+        else:
+            rating = (float(r) + float(user_star)) / 2
     except:
         rating = float(user_star)
     rating = int(rating)
